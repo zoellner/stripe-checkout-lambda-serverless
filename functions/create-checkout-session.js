@@ -4,6 +4,7 @@
  *
  * @see https://stripe.com/docs/payments/checkout/one-time
  */
+console.log('pkkkkkk', process.env.STRIPE_PUBLISHABLE_KEY);
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2020-03-02',
   maxNetworkRetries: 2,
@@ -20,7 +21,22 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const inventory = require('./data/products.json');
 
 exports.handler = async (event) => {
-  const { sku, quantity } = JSON.parse(event.body);
+  // All log statements are written to CloudWatch
+  console.info('received:', event);
+  const {requestContext, body} = event;
+  if (requestContext.http.method !== 'POST') {
+    throw new Error(`createCheckoutSession only accept POST method, you tried: ${requestContext.http.method}`);
+  }
+
+  let requestBody;
+  if (event.isBase64Encoded) {
+    requestBody = JSON.parse(Buffer.from(body, 'base64').toString('utf-8'));
+  } else {
+    requestBody = JSON.parse(body);
+  }
+
+  const { sku, quantity } = requestBody;
+
   const product = inventory.find((p) => p.sku === sku);
 
   // ensure that the quantity is within the allowed range

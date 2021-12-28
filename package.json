@@ -1,15 +1,16 @@
 {
-  "name": "checkout-netlify-serverless",
+  "name": "stripe-checkout-lambda-serverless",
   "version": "0.0.1",
   "main": "index.js",
   "contributors": [
+    "Andreas Zoellner <github@andreaszoellner.de>",
     "Jason Lengstorf <jason@lengstorf.com>",
     "Thor 雷神 <thorsten@stripe.com>"
   ],
   "scripts": {
-    "functions": "cd functions && npm i && cd ..",
-    "dev": "netlify dev",
-    "webhook": "stripe listen --forward-to localhost:8888/.netlify/functions/handle-purchase"
+    "prestart": "cd functions && npm i && cd ..",
+    "start": "sam local start-api -n ./.env.json -s ./public",
+    "webhook": "stripe listen --forward-to localhost:3000/handle-purchase"
   },
   "license": "MIT",
   "dependencies": {}

@@ -12,11 +12,25 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-exports.handler = async ({ body, headers }) => {
+exports.handler = async (event) => {
+  // All log statements are written to CloudWatch
+  console.info('received:', event);
+  const {requestContext, body, header} = event;
+  if (requestContext.http.method !== 'POST') {
+    throw new Error(`handlePurchase only accept POST method, you tried: ${requestContext.http.method}`);
+  }
+
+  let requestBody;
+  if (event.isBase64Encoded) {
+    requestBody = JSON.parse(Buffer.from(body, 'base64').toString('utf-8'));
+  } else {
+    requestBody = JSON.parse(body);
+  }
+
   try {
     const stripeEvent = stripe.webhooks.constructEvent(
-      body,
-      headers['stripe-signature'],
+      requestBody,
+      header['stripe-signature'],
       process.env.STRIPE_WEBHOOK_SECRET
     );
 

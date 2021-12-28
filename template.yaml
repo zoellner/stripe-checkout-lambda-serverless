@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: stripe-checkout-lambda-serverless
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  Stage:
+    Type: String
+  StripePublishableKey:
+    Type: String
+
+Globals:
+  Function:
+    Runtime: nodejs14.x
+    Architectures:
+      - x86_64
+    MemorySize: 256
+    Timeout: 10
+    Environment:
+      Variables:
+        STAGE: !Ref Stage
+        URL:
+
+Resources:
+  CreateCheckoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/create-checkout-session.handler
+      Description: Create Stripe Checkout
+      Environment:
+        Variables:
+          STRIPE_PUBLISHABLE_KEY:
+          STRIPE_SECRET_KEY:
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /create-checkout-session
+            Method: POST
+
+  GetProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/get-products.handler
+      Description: Get Products
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /get-products
+            Method: GET
+
+  HandlePurchaseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/handle-purchase.handler
+      Description: Handle Stripe Purchase
+      Environment:
+        Variables:
+          STRIPE_PUBLISHABLE_KEY:
+          STRIPE_SECRET_KEY:
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /handle-purchase
+            Method: POST
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Stage
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format: $context.requestId $context.routeKey
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 200
+      # StageVariables:
+      #   StageVar: Value
+      FailOnWarnings: true
+
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+
+Outputs:
+  HttpApiUrl:
+    Description: URL of API endpoint
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/${Stage}/'

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stripe Checkout Jamstack Example</title>
+    <title>Stripe Checkout Example</title>
     <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
@@ -27,16 +27,7 @@
           episode of <em>Learn With Jason</em>
         </a>
         ·
-        <a href="https://jason.af/egghead/stripe-products">
-          watch the video course
-        </a>
-        ·
-        <a
-          href="https://www.netlify.com/blog/2020/04/13/learn-how-to-accept-money-on-jamstack-sites-in-38-minutes/?utm_source=demo&utm_medium=stripe-checkout-jamstack-jl&utm_campaign=devex"
-          >read the tutorial</a
-        >
-        ·
-        <a href="https://github.com/stripe-samples/checkout-netlify-serverless">
+        <a href="https://github.com/zoellner/stripe-checkout-lambda-serverless">
           source code
         </a>
       </p>
@@ -48,7 +39,7 @@
         <h2>name</h2>
         <p class="description">description</p>
         <p class="price">price</p>
-        <form action="/.netlify/functions/create-checkout" method="post">
+        <form action="/create-checkout-session" method="post">
           <label for="quantity">Quantity</label>
           <input
             type="number"
@@ -85,7 +76,7 @@
           quantity: Number(form.get('quantity')),
         };
 
-        const response = await fetch('/.netlify/functions/create-checkout', {
+        const response = await fetch('/create-checkout-session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +103,7 @@
           return;
         }
 
-        const data = await fetch('/.netlify/functions/get-products')
+        const data = await fetch('/get-products')
           .then((res) => res.json())
           .catch((err) => console.error(err));
 
