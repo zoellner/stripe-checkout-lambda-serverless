@@ -4,11 +4,9 @@
  *
  * @see https://stripe.com/docs/payments/checkout/one-time
  */
-console.log('pkkkkkk', process.env.STRIPE_PUBLISHABLE_KEY);
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2020-03-02',
-  maxNetworkRetries: 2,
-});
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const domain = process.env.URL;
 
 /*
  * Product data can be loaded from anywhere. In this case, we’re loading it from
@@ -50,18 +48,12 @@ exports.handler = async (event) => {
       allowed_countries: ['US', 'CA'],
     },
 
-    /*
-     * This env var is set by Netlify and inserts the live site URL. If you want
-     * to use a different URL, you can hard-code it here or check out the
-     * other environment variables Netlify exposes:
-     * https://docs.netlify.com/configure-builds/environment-variables/
-     */
-    success_url: `${process.env.URL}/success.html`,
-    cancel_url: process.env.URL,
+    success_url: `${domain}/success.html`,
+    cancel_url: domain,
     line_items: [
       {
         price_data: {
-          currency: 'usd',
+          currency: product.currency.toLowerCase(),
           unit_amount: product.amount,
           product_data: {
             name: product.name,

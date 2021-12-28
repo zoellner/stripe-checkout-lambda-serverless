@@ -4,10 +4,7 @@
  *
  * @see https://stripe.com/docs/payments/checkout/fulfillment#webhooks
  */
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2020-03-02',
-  maxNetworkRetries: 2,
-});
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
